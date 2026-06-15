@@ -8,7 +8,7 @@ type Engine = 'xterm' | 'ghostty' | 'wterm'
 
 export default function App() {
   const socket = useTermSocket()
-  const [engine, setEngine] = useState<Engine>('ghostty')
+  const [engine, setEngine] = useState<Engine>('wterm')
   const connected = socket.status === 'connected'
 
   return (
