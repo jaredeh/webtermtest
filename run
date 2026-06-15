@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT"
+
+[ -f .env ] && source .env
+HUB_WEB_PORT="${HUB_WEB_PORT:-5000}"
+
+cmd="${1:-dev}"
+
+case "$cmd" in
+setup)
+  echo "==> setup: npm install"
+  (cd frontend && NPM_CONFIG_CACHE=/tmp/npm-cache npm install)
+  echo "==> setup: go mod tidy"
+  (cd hub && go mod tidy)
+  (cd daemon && go mod tidy)
+  echo "==> setup done"
+  ;;
+
+build)
+  echo "==> build: frontend"
+  (cd frontend && NPM_CONFIG_CACHE=/tmp/npm-cache npm run build)
+  echo "==> build: hub"
+  (cd hub && go build -o ../bin/hub .)
+  echo "==> build: daemon"
+  (cd daemon && go build -o ../bin/daemon .)
+  echo "==> build done. binaries in ./bin/"
+  ;;
+
+dev)
+  mkdir -p bin
+  echo "==> dev: building hub..."
+  (cd hub && go build -o ../bin/hub .)
+  echo "==> dev: building daemon..."
+  (cd daemon && go build -o ../bin/daemon .)
+
+  cleanup() {
+    kill "$HUB_PID" "$DAEMON_PID" "$VITE_PID" 2>/dev/null || true
+  }
+  trap cleanup EXIT INT TERM
+
+  echo "==> dev: starting hub on :${HUB_WEB_PORT}"
+  ./bin/hub &
+  HUB_PID=$!
+
+  # wait for hub to be ready
+  for i in $(seq 1 20); do
+    curl -sf "http://localhost:${HUB_WEB_PORT}/" >/dev/null 2>&1 && break
+    sleep 0.3
+  done
+
+  echo "==> dev: starting daemon"
+  ./bin/daemon &
+  DAEMON_PID=$!
+
+  echo "==> dev: starting vite dev server"
+  (cd frontend && NPM_CONFIG_CACHE=/tmp/npm-cache npm run dev) &
+  VITE_PID=$!
+
+  echo ""
+  echo "  Hub:    http://localhost:${HUB_WEB_PORT}"
+  echo "  UI dev: http://localhost:5173"
+  echo ""
+  wait "$VITE_PID"
+  ;;
+
+clean)
+  echo "==> clean"
+  rm -rf bin hub/static_dist frontend/dist frontend/node_modules
+  mkdir -p hub/static_dist
+  echo "placeholder" > hub/static_dist/placeholder.txt
+  echo "==> clean done"
+  ;;
+
+*)
+  echo "Usage: $0 {setup|build|dev|clean}"
+  exit 1
+  ;;
+esac

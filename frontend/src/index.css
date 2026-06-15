@@ -1,0 +1,105 @@
+@font-face {
+  font-family: 'MesloLGS NF';
+  src: url('/fonts/MesloLGS-NF-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'MesloLGS NF';
+  src: url('/fonts/MesloLGS-NF-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'MesloLGS NF';
+  src: url('/fonts/MesloLGS-NF-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'MesloLGS NF';
+  src: url('/fonts/MesloLGS-NF-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-family: system-ui, sans-serif;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background: #111;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+header h1 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #aaa;
+  white-space: nowrap;
+}
+
+.engine-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.engine-tabs button {
+  font-size: 0.8rem;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.engine-tabs button:hover { color: #aaa; border-color: #555; }
+.engine-tabs button.active { color: #4ade80; border-color: #4ade80; font-weight: 600; }
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  flex-shrink: 0;
+}
+
+.status-dot.connected { background: #4ade80; }
+
+.status-text {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.terminal-wrap {
+  flex: 1;
+  overflow: hidden;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-wrap > div {
+  flex: 1;
+}
+
+.xterm { height: 100%; }
+.xterm-viewport { overflow-y: auto !important; }
